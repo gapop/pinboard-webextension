@@ -1,0 +1,52 @@
+{
+    "manifest_version": 2,
+    "name": "Pinboard WebExtension",
+    "short_name": "Pinboard",
+    "version": "1.0",
+    "description": "Easily add links to Pinboard. A remake of the official Pinboard extension.",
+    "author": "George Pop",
+    "homepage_url": "https://github.com/gapop/pinboard-webextension",
+    "applications": {
+        "gecko": {
+            "id": "pinboard-webextension@helloworld.ro"
+        }
+    },
+    "icons": {
+        "48": "pinboard_icon_48.png",
+        "96": "pinboard_icon_96.png",
+        "200": "pinboard_icon.png"
+    },
+    "permissions": [
+        "*://pinboard.in/*",
+        "tabs",
+        "notifications",
+        "storage",
+        "contextMenus"
+    ],
+    "browser_action": {
+        "default_icon": {
+            "16": "toolbar_icon_16.png",
+            "48": "toolbar_icon_48.png",
+            "96": "toolbar_icon_96.png"
+        },
+        "default_title": "Add to Pinboard",
+        "default_popup": "popup_menu.html",
+        "browser_style": true
+    },
+    "background": {
+        "scripts": ["main.js"]
+    },
+    "content_scripts": [
+        {
+            "matches": [
+                "https://pinboard.in/add",
+                "https://pinboard.in/add/*later=yes*"
+            ],
+            "js": ["link_saved.js"]
+        }
+    ],
+    "options_ui": {
+        "page": "preferences.html",
+        "browser_style": true
+    }
+}
