@@ -79,40 +79,32 @@ function open_pinboard_form(url) {
 function add_read_later(url) {
 
     browser.windows.getCurrent().then(function (bg_window) {
+
         if (bg_window.incognito) {
-            save_with_window();
+
+            // In private mode we actually have to open a window,
+            // because Firefox doesn't support split incognito mode
+            // and gets confused about cookie jars.
+            open_pinboard_form(url);
+
         } else {
-            save_without_window();
+
+            fetch(url, {credentials: 'include'}).then(function (response) {
+                if (response.redirected && response.url.startsWith('https://pinboard.in/popup_login/')) {
+                    open_pinboard_form(response.url);
+                } else if (response.url !== url || response.status !== 200 || response.ok !== true) {
+                    show_notification('FAILED TO ADD LINK. ARE YOU LOGGED-IN?');
+                } else {
+                    browser.storage.sync.get({show_notifications: true}).then(function (option) {
+                        if (option.show_notifications) {
+                            show_notification('Saved to read later.');
+                        }
+                    });
+                }
+            });
         }
+
     });
-
-    function save_without_window() {
-        fetch(url, {credentials: 'include'}).then(function (response) {
-            if (response.redirected && response.url.startsWith('https://pinboard.in/popup_login/')) {
-                open_pinboard_form(response.url);
-            } else if (response.url !== url || response.status !== 200 || response.ok !== true) {
-                notify_fail();
-            } else {
-                notify_success();
-            }
-        });
-    }
-
-    function save_with_window() {
-        open_pinboard_form(url);
-    }
-
-    function notify_success() {
-        browser.storage.sync.get({show_notifications: true}).then(function (option) {
-            if (option.show_notifications) {
-                show_notification('Saved to read later.');
-            }
-        });
-    }
-
-    function notify_fail() {
-        show_notification('FAILED TO ADD LINK. ARE YOU LOGGED-IN?');
-    }
 
 }
 
