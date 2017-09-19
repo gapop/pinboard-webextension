@@ -65,28 +65,55 @@ function change_context_menu() {
 }
 
 function open_pinboard_form(url) {
-    browser.windows.create({
-        url: url,
-        type: 'popup',
-        width: 750,
-        height: 550
-    }).then(function (window) { pin_window_id = window.id; });
+    browser.windows.getCurrent().then(function (bg_window) {
+        browser.windows.create({
+            url: url,
+            type: 'popup',
+            width: 750,
+            height: 550,
+            incognito: bg_window.incognito
+        }).then(function (pin_window) { pin_window_id = pin_window.id; });
+    });
 }
 
 function add_read_later(url) {
-    fetch(url, {credentials: 'include'}).then(function (response) {
-        if (response.redirected && response.url.startsWith('https://pinboard.in/popup_login/')) {
-            open_pinboard_form(response.url);
-        } else if (response.url !== url || response.status !== 200 || response.ok !== true) {
-            show_notification('FAILED TO ADD LINK. ARE YOU LOGGED-IN?');
+
+    browser.windows.getCurrent().then(function (bg_window) {
+        if (bg_window.incognito) {
+            save_with_window();
         } else {
-            browser.storage.sync.get({show_notifications: true}).then(function (option) {
-                if (option.show_notifications) {
-                    show_notification('Saved to read later.');
-                }
-            });
+            save_without_window();
         }
     });
+
+    function save_without_window() {
+        fetch(url, {credentials: 'include'}).then(function (response) {
+            if (response.redirected && response.url.startsWith('https://pinboard.in/popup_login/')) {
+                open_pinboard_form(response.url);
+            } else if (response.url !== url || response.status !== 200 || response.ok !== true) {
+                notify_fail();
+            } else {
+                notify_success();
+            }
+        });
+    }
+
+    function save_with_window() {
+        open_pinboard_form(url);
+    }
+
+    function notify_success() {
+        browser.storage.sync.get({show_notifications: true}).then(function (option) {
+            if (option.show_notifications) {
+                show_notification('Saved to read later.');
+            }
+        });
+    }
+
+    function notify_fail() {
+        show_notification('FAILED TO ADD LINK. ARE YOU LOGGED-IN?');
+    }
+
 }
 
 function message_handler(message) {
