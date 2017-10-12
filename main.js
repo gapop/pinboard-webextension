@@ -92,7 +92,8 @@ function add_read_later(url) {
             fetch(url, {credentials: 'include'}).then(function (response) {
                 if (response.redirected && response.url.startsWith('https://pinboard.in/popup_login/')) {
                     open_pinboard_form(response.url);
-                } else if (response.url !== url || response.status !== 200 || response.ok !== true) {
+                } else if (response.status !== 200 || response.ok !== true) {
+                    console.log(response);
                     show_notification('FAILED TO ADD LINK. ARE YOU LOGGED-IN?');
                 } else {
                     browser.storage.sync.get({show_notifications: true}).then(function (option) {
@@ -168,6 +169,12 @@ browser.contextMenus.onClicked.addListener(function (info, tab) {
 
     if (info.linkUrl) {
         url = info.linkUrl;
+        if (info.linkText) {
+            title = info.linkText.substr(0, 200);
+            if (title.length < info.linkText.length) {
+                title += '...';
+            }
+        }
     } else {
         url = info.pageUrl;
         title = tab.title;
