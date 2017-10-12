@@ -93,7 +93,6 @@ function add_read_later(url) {
                 if (response.redirected && response.url.startsWith('https://pinboard.in/popup_login/')) {
                     open_pinboard_form(response.url);
                 } else if (response.status !== 200 || response.ok !== true) {
-                    console.log(response);
                     show_notification('FAILED TO ADD LINK. ARE YOU LOGGED-IN?');
                 } else {
                     browser.storage.sync.get({show_notifications: true}).then(function (option) {
