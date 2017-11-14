@@ -8,6 +8,10 @@ document.addEventListener('DOMContentLoaded', function () {
         browser.runtime.sendMessage({'message': 'read_later'}).then(function () { window.close(); });
     });
 
+    document.getElementById('menu-tabset').addEventListener('click', function () {
+        browser.runtime.sendMessage({'message': 'save_tab_set'}).then(function () { window.close(); });
+    });
+
     document.getElementById('menu-preferences').addEventListener('click', function () {
         browser.runtime.openOptionsPage();
         window.close();

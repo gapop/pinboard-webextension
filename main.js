@@ -1,5 +1,7 @@
 const ADD_LINK_URL = 'https://pinboard.in/add?showtags=yes&description=&url={url}&title={title}';
 const READ_LATER_URL = 'https://pinboard.in/add?later=yes&noui=yes&jump=close&url={url}&title={title}';
+const SAVE_TABS_URL = 'https://pinboard.in/tabs/save/';
+const SHOW_TABS_URL = 'https://pinboard.in/tabs/show/';
 
 var pin_window_id;
 var toolbar_button_state = 'show_menu';
@@ -50,13 +52,18 @@ function change_context_menu() {
         if (option.context_menu_items) {
             browser.contextMenus.create({
                 id: 'save',
-                title: 'Save to Pinboard',
+                title: 'Save...',
                 contexts: ['link', 'page']
             });
             browser.contextMenus.create({
                 id: 'read_later',
-                title: 'Read later on Pinboard',
+                title: 'Read later',
                 contexts: ['link', 'page']
+            });
+            browser.contextMenus.create({
+                id: 'save_tab_set',
+                title: 'Save tab set...',
+                contexts: ['page']
             });
         } else {
             browser.contextMenus.removeAll();
@@ -108,20 +115,60 @@ function add_read_later(url) {
 
 }
 
+function save_tab_set() {
+    browser.windows.getCurrent().then(function (bg_window) {
+        if (bg_window.incognito) {
+            show_notification("Due to a Firefox limitation, saving tab sets does not work in Private mode. Try normal mode!");
+            return;
+        }
+
+        browser.windows.getAll({populate: true, windowTypes: ['normal']}).then(function (window_info) {
+            var windows = [];
+            for (var i = 0; i < window_info.length; i++) {
+                var current_window_tabs = window_info[i].tabs;
+                var tabs = [];
+                for (var j = 0; j < current_window_tabs.length; j++) {
+                    tabs.push({
+                        title: current_window_tabs[j].title,
+                        url: current_window_tabs[j].url
+                    });
+                }
+                windows.push(tabs);
+            }
+
+            var payload = new FormData();
+            payload.append('data', JSON.stringify({browser: 'ffox', windows: windows}));
+            fetch(SAVE_TABS_URL, {method: 'POST', body: payload, credentials: 'include'}).then(function (response) {
+                if (response.status !== 200 || response.ok !== true) {
+                    show_notification('FAILED TO SAVE TAB SET.');
+                } else {
+                    browser.tabs.create({url: SHOW_TABS_URL});
+                }
+            });
+        });
+    });
+}
+
 function message_handler(message) {
     switch (message.message) {
 
         case 'save':
-            browser.tabs.query({ currentWindow: true, active: true }).then(function (tabs) {
+            browser.tabs.query({currentWindow: true, active: true}).then(function (tabs) {
                 var pin_url = prepare_pin_url(ADD_LINK_URL, tabs[0].url, tabs[0].title);
                 open_pinboard_form(pin_url);
             });
             break;
 
         case 'read_later':
-            browser.tabs.query({ currentWindow: true, active: true }).then(function (tabs) {
+            browser.tabs.query({currentWindow: true, active: true}).then(function (tabs) {
                 var pin_url = prepare_pin_url(READ_LATER_URL, tabs[0].url, tabs[0].title);
                 add_read_later(pin_url);
+            });
+            break;
+
+        case 'save_tab_set':
+            browser.windows.getCurrent().then(function (bg_window) {
+                save_tab_set();
             });
             break;
 
@@ -188,6 +235,10 @@ browser.contextMenus.onClicked.addListener(function (info, tab) {
         case 'read_later':
             var pin_url = prepare_pin_url(READ_LATER_URL, url, title);
             add_read_later(pin_url);
+            break;
+
+        case 'save_tab_set':
+            save_tab_set();
             break;
     }
 });
