@@ -6,7 +6,7 @@ const SHOW_TABS_URL = 'https://pinboard.in/tabs/show/';
 var pin_window_id;
 var toolbar_button_state = 'show_menu';
 
-function prepare_pin_url(url_template, url, title, description) {
+function prepare_pin_url(url_template, url, title = '', description = '') {
     var prepared_url = url_template.replace('{url}', encodeURIComponent(url));
     prepared_url = prepared_url.replace('{title}', encodeURIComponent(title));
     prepared_url = prepared_url.replace('{description}', encodeURIComponent(description));
