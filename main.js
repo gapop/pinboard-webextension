@@ -1,4 +1,4 @@
-const ADD_LINK_URL = 'https://pinboard.in/add?showtags=yes&description=&url={url}&title={title}';
+const ADD_LINK_URL = 'https://pinboard.in/add?showtags=yes&url={url}&title={title}&description={description}';
 const READ_LATER_URL = 'https://pinboard.in/add?later=yes&noui=yes&jump=close&url={url}&title={title}';
 const SAVE_TABS_URL = 'https://pinboard.in/tabs/save/';
 const SHOW_TABS_URL = 'https://pinboard.in/tabs/show/';
@@ -6,9 +6,10 @@ const SHOW_TABS_URL = 'https://pinboard.in/tabs/show/';
 var pin_window_id;
 var toolbar_button_state = 'show_menu';
 
-function prepare_pin_url(url_template, url, title) {
+function prepare_pin_url(url_template, url, title, description) {
     var prepared_url = url_template.replace('{url}', encodeURIComponent(url));
     prepared_url = prepared_url.replace('{title}', encodeURIComponent(title));
+    prepared_url = prepared_url.replace('{description}', encodeURIComponent(description));
     return prepared_url;
 }
 
@@ -53,21 +54,30 @@ function change_context_menu() {
             browser.contextMenus.create({
                 id: 'save',
                 title: 'Save...',
-                contexts: ['link', 'page']
+                contexts: ['link', 'page', 'selection']
             });
             browser.contextMenus.create({
                 id: 'read_later',
                 title: 'Read later',
-                contexts: ['link', 'page']
+                contexts: ['link', 'page', 'selection']
             });
             browser.contextMenus.create({
                 id: 'save_tab_set',
                 title: 'Save tab set...',
-                contexts: ['page']
+                contexts: ['page', 'selection']
             });
         } else {
             browser.contextMenus.removeAll();
         }
+    });
+}
+
+function save_bookmark(action_url, action_callback) {
+    browser.tabs.executeScript({code: 'getSelection().toString();'}).then(function (selected_text) {
+        browser.tabs.query({currentWindow: true, active: true}).then(function (tabs) {
+            var pin_url = prepare_pin_url(action_url, tabs[0].url, tabs[0].title, selected_text);
+            action_callback(pin_url);
+        });
     });
 }
 
@@ -153,23 +163,15 @@ function message_handler(message) {
     switch (message.message) {
 
         case 'save':
-            browser.tabs.query({currentWindow: true, active: true}).then(function (tabs) {
-                var pin_url = prepare_pin_url(ADD_LINK_URL, tabs[0].url, tabs[0].title);
-                open_pinboard_form(pin_url);
-            });
+            save_bookmark(ADD_LINK_URL, open_pinboard_form);
             break;
 
         case 'read_later':
-            browser.tabs.query({currentWindow: true, active: true}).then(function (tabs) {
-                var pin_url = prepare_pin_url(READ_LATER_URL, tabs[0].url, tabs[0].title);
-                add_read_later(pin_url);
-            });
+            save_bookmark(READ_LATER_URL, add_read_later);
             break;
 
         case 'save_tab_set':
-            browser.windows.getCurrent().then(function (bg_window) {
-                save_tab_set();
-            });
+            save_tab_set();
             break;
 
         case 'link_saved':
@@ -228,7 +230,7 @@ browser.contextMenus.onClicked.addListener(function (info, tab) {
 
     switch (info.menuItemId) {
         case 'save':
-            var pin_url = prepare_pin_url(ADD_LINK_URL, url, title);
+            var pin_url = prepare_pin_url(ADD_LINK_URL, url, title, info.selectionText);
             open_pinboard_form(pin_url);
             break;
 
