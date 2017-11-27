@@ -2,6 +2,8 @@ const ADD_LINK_URL = 'https://pinboard.in/add?showtags=yes&url={url}&title={titl
 const READ_LATER_URL = 'https://pinboard.in/add?later=yes&noui=yes&jump=close&url={url}&title={title}';
 const SAVE_TABS_URL = 'https://pinboard.in/tabs/save/';
 const SHOW_TABS_URL = 'https://pinboard.in/tabs/show/';
+const ALL_TABS_URL = "https://pinboard.in/tabs/";
+const UNREAD_BOOKMARKS_URL = "https://pinboard.in/toread/";
 
 var pin_window_id;
 var toolbar_button_state = 'show_menu';
@@ -180,6 +182,18 @@ function message_handler(message) {
                 if (option.show_notifications) {
                     show_notification('Link added to Pinboard');
                 }
+            });
+            break;
+
+        case 'view_all_unread':
+            browser.tabs.create({
+                url: UNREAD_BOOKMARKS_URL
+            });
+            break;
+
+        case 'view_all_tabsets':
+            browser.tabs.create({
+                url: ALL_TABS_URL
             });
             break;
 
