@@ -2,7 +2,7 @@
     "manifest_version": 2,
     "name": "Pinboard WebExtension",
     "short_name": "Pinboard",
-    "version": "1.31",
+    "version": "1.32",
     "description": "Easily add links to Pinboard. A remake of the official Pinboard extension.",
     "author": "George Pop",
     "homepage_url": "https://github.com/gapop/pinboard-webextension",
@@ -27,9 +27,32 @@
     "browser_action": {
         "default_icon": {
             "16": "toolbar_icon_16.png",
+            "32": "toolbar_icon_32.png",
             "48": "toolbar_icon_48.png",
             "96": "toolbar_icon_96.png"
         },
+        "theme_icons": [
+            {
+                "dark": "toolbar_icon_16.png",
+                "light": "toolbar_icon_16_light.png",
+                "size": 16
+            },
+            {
+                "dark": "toolbar_icon_32.png",
+                "light": "toolbar_icon_32_light.png",
+                "size": 32
+            },
+            {
+                "dark": "toolbar_icon_48.png",
+                "light": "toolbar_icon_48_light.png",
+                "size": 48
+            },
+            {
+                "dark": "toolbar_icon_96.png",
+                "light": "toolbar_icon_96_light.png",
+                "size": 96
+            }
+        ],
         "default_title": "Add to Pinboard",
         "default_popup": "popup_menu.html",
         "browser_style": true
