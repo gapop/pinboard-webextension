@@ -9,6 +9,10 @@ var pin_window_id;
 var toolbar_button_state = 'show_menu';
 
 function prepare_pin_url(url_template, url, title = '', description = '') {
+    if (url.indexOf('about:reader?url=') == 0) {
+        url = decodeURIComponent(url.substr(17));
+    }
+
     var prepared_url = url_template.replace('{url}', encodeURIComponent(url));
     prepared_url = prepared_url.replace('{title}', encodeURIComponent(title));
     prepared_url = prepared_url.replace('{description}', encodeURIComponent(description));
@@ -75,12 +79,16 @@ function change_context_menu() {
 }
 
 function save_bookmark(action_url, action_callback) {
-    browser.tabs.executeScript({code: 'getSelection().toString();'}).then(function (selected_text) {
+    var save = function (selected_text) {
         browser.tabs.query({currentWindow: true, active: true}).then(function (tabs) {
             var pin_url = prepare_pin_url(action_url, tabs[0].url, tabs[0].title, selected_text);
             action_callback(pin_url);
         });
-    });
+    };
+    var get_selected_text = browser.tabs.executeScript({code: 'getSelection().toString();'});
+    get_selected_text
+        .then(function (selected_text) { save(selected_text); })
+        .catch(function (error) { save(''); });
 }
 
 function open_pinboard_form(url) {
