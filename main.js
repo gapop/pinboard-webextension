@@ -8,11 +8,15 @@ const UNREAD_BOOKMARKS_URL = "https://pinboard.in/toread/";
 var pin_window_id;
 var toolbar_button_state = 'show_menu';
 
-function prepare_pin_url(url_template, url, title = '', description = '') {
+function strip_reader_mode_url(url) {
     if (url.indexOf('about:reader?url=') == 0) {
         url = decodeURIComponent(url.substr(17));
     }
+    return url;
+}
 
+function prepare_pin_url(url_template, url, title = '', description = '') {
+    url = strip_reader_mode_url(url);
     var prepared_url = url_template.replace('{url}', encodeURIComponent(url));
     prepared_url = prepared_url.replace('{title}', encodeURIComponent(title));
     prepared_url = prepared_url.replace('{description}', encodeURIComponent(description));
@@ -150,7 +154,7 @@ function save_tab_set() {
                 for (var j = 0; j < current_window_tabs.length; j++) {
                     tabs.push({
                         title: current_window_tabs[j].title,
-                        url: current_window_tabs[j].url
+                        url: strip_reader_mode_url(current_window_tabs[j].url)
                     });
                 }
                 windows.push(tabs);
