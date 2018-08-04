@@ -1,10 +1,10 @@
-const ADD_LINK_URL = 'https://pinboard.in/add?showtags=yes&url={url}&title={title}&description={description}';
 const READ_LATER_URL = 'https://pinboard.in/add?later=yes&noui=yes&jump=close&url={url}&title={title}';
 const SAVE_TABS_URL = 'https://pinboard.in/tabs/save/';
 const SHOW_TABS_URL = 'https://pinboard.in/tabs/show/';
 const ALL_TABS_URL = "https://pinboard.in/tabs/";
 const UNREAD_BOOKMARKS_URL = "https://pinboard.in/toread/";
 
+var add_link_url = 'https://pinboard.in/add?showtags=yes&url={url}&title={title}&description={description}';
 var pin_window_id;
 var toolbar_button_state = 'show_menu';
 
@@ -80,6 +80,16 @@ function change_context_menu() {
             browser.contextMenus.removeAll();
         }
     });
+}
+
+function change_url_template() {
+    browser.storage.sync.get({'show_tags': true}).then(function (option) {
+        if (option.show_tags) {
+            add_link_url = add_link_url.replace('?showtags=no&', '?showtags=yes&');
+      } else {
+            add_link_url = add_link_url.replace('?showtags=yes&', '?showtags=no&');
+      }
+  });
 }
 
 function save_bookmark(action_url, action_callback) {
@@ -177,7 +187,7 @@ function message_handler(message) {
     switch (message.message) {
 
         case 'save':
-            save_bookmark(ADD_LINK_URL, open_pinboard_form);
+            save_bookmark(add_link_url, open_pinboard_form);
             break;
 
         case 'read_later':
@@ -215,6 +225,10 @@ function message_handler(message) {
 
         case 'context_menu_changed':
             change_context_menu();
+            break;
+
+        case 'url_template_changed':
+            change_url_template();
             break;
 
     }
@@ -256,7 +270,7 @@ browser.contextMenus.onClicked.addListener(function (info, tab) {
 
     switch (info.menuItemId) {
         case 'save':
-            var pin_url = prepare_pin_url(ADD_LINK_URL, url, title, info.selectionText);
+            var pin_url = prepare_pin_url(add_link_url, url, title, info.selectionText);
             open_pinboard_form(pin_url);
             break;
 
@@ -276,4 +290,7 @@ change_toolbar_button();
 
 // Add or remove context menus according to user preference
 change_context_menu();
+
+// Set Add Link URL to show tags according to user preference
+change_url_template();
 

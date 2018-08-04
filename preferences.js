@@ -25,4 +25,13 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    browser.storage.sync.get({'show_tags': true}).then(function (option) {
+        document.getElementById('show-tags-toggle').checked = option.show_tags;
+    });
+    document.getElementById('show-tags-toggle').addEventListener('change', function () {
+        browser.storage.sync.set({'show_tags': this.checked}).then(function () {
+            browser.runtime.sendMessage({'message': 'url_template_changed'})
+        });
+    });
+
 });
