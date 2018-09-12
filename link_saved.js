@@ -1,1 +1,1 @@
-browser.runtime.sendMessage({message: 'link_saved'});
+browser.runtime.sendMessage({event: 'link_saved'});

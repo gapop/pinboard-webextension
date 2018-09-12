@@ -1,37 +1,38 @@
-document.addEventListener('DOMContentLoaded', function () {
+let Preferences;
 
-    browser.storage.sync.get({'toolbar_button': 'show_menu'}).then(function (option) {
-        document.getElementById('button-select').value = option.toolbar_button;
-    });
-    document.getElementById('button-select').addEventListener('change', function () {
-        browser.storage.sync.set({'toolbar_button': this.value}).then(function () {
-            browser.runtime.sendMessage({'message': 'toolbar_button_changed'});
-        });
-    });
+// Form getter & setter functions by element type
+const bind_functions = {
+    SELECT: {
+        get: (input) => input.value,
+        set: (input, value) => {input.value = value}
+    },
+    INPUT: {
+        get: (input) => !!input.checked,
+        set: (input, value) => {input.checked = !!value}
+    }
+}
 
-    browser.storage.sync.get({'show_notifications': true}).then(function (option) {
-        document.getElementById('notifications-toggle').checked = option.show_notifications;
-    });
-    document.getElementById('notifications-toggle').addEventListener('change', function () {
-        browser.storage.sync.set({'show_notifications': this.checked});
-    });
+async function bind_preference(option) {
+    const input = document.getElementById(option);
+    const bind_fn = bind_functions[input.tagName];
 
-    browser.storage.sync.get({'context_menu_items': true}).then(function (option) {
-        document.getElementById('context-menu-toggle').checked = option.context_menu_items;
-    });
-    document.getElementById('context-menu-toggle').addEventListener('change', function () {
-        browser.storage.sync.set({'context_menu_items': this.checked}).then(function () {
-            browser.runtime.sendMessage({'message': 'context_menu_changed'});
-        });
-    });
+    // Set the form input value to current value for the preference
+    bind_fn.set(input, await Preferences.get(option));
 
-    browser.storage.sync.get({'show_tags': true}).then(function (option) {
-        document.getElementById('show-tags-toggle').checked = option.show_tags;
+    // Create an event listener for saving the preference value
+    // and send a signal when form input value changes
+    input.addEventListener('change', async (event) => {
+        await Preferences.set(option, bind_fn.get(event.target));
     });
-    document.getElementById('show-tags-toggle').addEventListener('change', function () {
-        browser.storage.sync.set({'show_tags': this.checked}).then(function () {
-            browser.runtime.sendMessage({'message': 'url_template_changed'})
-        });
-    });
+}
 
-});
+async function init() {
+    let main = await browser.runtime.getBackgroundPage();
+    Preferences = main.Preferences;
+    for (option in Preferences.defaults) {
+        bind_preference(option);
+    }
+}
+
+// Bind all preferences
+document.addEventListener('DOMContentLoaded', init);
