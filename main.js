@@ -137,44 +137,41 @@ async function save_bookmark(action_url, action_callback) {
         .catch(error => { save(''); });
 }
 
-function open_pinboard_form(url) {
-    browser.windows.getCurrent().then(function (bg_window) {
-        browser.windows.create({
-            url: url,
-            type: 'popup',
-            width: 750,
-            height: 550,
-            incognito: bg_window.incognito
-        }).then(function (pin_window) { pin_window_id = pin_window.id; });
+async function open_pinboard_form(url) {
+    const show_tags = await Preferences.get('show_tags');
+    const bg_window = await browser.windows.getCurrent();
+    const pin_window = await browser.windows.create({
+        url: url,
+        type: 'popup',
+        width: 750,
+        height: show_tags ? 550 : 305,
+        incognito: bg_window.incognito
     });
+    pin_window_id = pin_window.id;
 }
 
 async function add_read_later(url) {
+    const bg_window = await browser.windows.getCurrent();
+    if (bg_window.incognito) {
 
-    browser.windows.getCurrent().then(function (bg_window) {
+        // In private mode we actually have to open a window,
+        // because Firefox doesn't support split incognito mode
+        // and gets confused about cookie jars.
+        open_pinboard_form(url);
 
-        if (bg_window.incognito) {
+    } else {
 
-            // In private mode we actually have to open a window,
-            // because Firefox doesn't support split incognito mode
-            // and gets confused about cookie jars.
-            open_pinboard_form(url);
+        fetch(url, {credentials: 'include'}).then(function (response) {
+            if (response.redirected && response.url.startsWith('https://pinboard.in/popup_login/')) {
+                open_pinboard_form(response.url);
+            } else if (response.status !== 200 || response.ok !== true) {
+                show_notification('FAILED TO ADD LINK. ARE YOU LOGGED-IN?', true);
+            } else {
+                show_notification('Saved to read later.');
+            }
+        });
 
-        } else {
-
-            fetch(url, {credentials: 'include'}).then(function (response) {
-                if (response.redirected && response.url.startsWith('https://pinboard.in/popup_login/')) {
-                    open_pinboard_form(response.url);
-                } else if (response.status !== 200 || response.ok !== true) {
-                    show_notification('FAILED TO ADD LINK. ARE YOU LOGGED-IN?', true);
-                } else {
-                    show_notification('Saved to read later.');
-                }
-            });
-        }
-
-    });
-
+    }
 }
 
 function save_tab_set() {
