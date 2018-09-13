@@ -1,4 +1,4 @@
-const ADD_LINK_URL = 'https://pinboard.in/add?showtags=yes&url={url}&title={title}&description={description}';
+const ADD_LINK_URL = 'https://pinboard.in/add?showtags={show_tags}&url={url}&title={title}&description={description}';
 const READ_LATER_URL = 'https://pinboard.in/add?later=yes&noui=yes&jump=close&url={url}&title={title}';
 const SAVE_TABS_URL = 'https://pinboard.in/tabs/save/';
 const SHOW_TABS_URL = 'https://pinboard.in/tabs/show/';
@@ -52,9 +52,11 @@ function strip_reader_mode_url(url) {
     return url;
 }
 
-function prepare_pin_url(url_template, url, title = '', description = '') {
+async function prepare_pin_url(url_template, url, title = '', description = '') {
     url = strip_reader_mode_url(url);
-    var prepared_url = url_template.replace('{url}', encodeURIComponent(url));
+    const show_tags = await Preferences.get('show_tags') ? 'yes' : 'no';
+    let prepared_url = url_template.replace('{show_tags}', show_tags);
+    prepared_url = prepared_url.replace('{url}', encodeURIComponent(url));
     prepared_url = prepared_url.replace('{title}', encodeURIComponent(title));
     prepared_url = prepared_url.replace('{description}', encodeURIComponent(description));
     return prepared_url;
@@ -123,17 +125,16 @@ async function change_context_menu() {
     }
 }
 
-function save_bookmark(action_url, action_callback) {
-    var save = function (selected_text) {
-        browser.tabs.query({currentWindow: true, active: true}).then(function (tabs) {
-            var pin_url = prepare_pin_url(action_url, tabs[0].url, tabs[0].title, selected_text);
-            action_callback(pin_url);
-        });
+async function save_bookmark(action_url, action_callback) {
+    const save = async (selected_text) => {
+        const tabs = await browser.tabs.query({currentWindow: true, active: true});
+        const pin_url = await prepare_pin_url(action_url, tabs[0].url, tabs[0].title, selected_text);
+        action_callback(pin_url);
     };
-    var get_selected_text = browser.tabs.executeScript({code: 'getSelection().toString();'});
+    const get_selected_text = browser.tabs.executeScript({code: 'getSelection().toString();'});
     get_selected_text
-        .then(function (selected_text) { save(selected_text); })
-        .catch(function (error) { save(''); });
+        .then(selected_text => { save(selected_text); })
+        .catch(error => { save(''); });
 }
 
 function open_pinboard_form(url) {
@@ -254,7 +255,7 @@ browser.browserAction.onClicked.addListener(() => {
 });
 
 // Context menu event handler
-browser.contextMenus.onClicked.addListener(function (info, tab) {
+browser.contextMenus.onClicked.addListener(async (info, tab) => {
     var url;
     var title = '';
 
@@ -273,12 +274,12 @@ browser.contextMenus.onClicked.addListener(function (info, tab) {
 
     switch (info.menuItemId) {
         case 'save_dialog':
-            var pin_url = prepare_pin_url(ADD_LINK_URL, url, title, info.selectionText);
+            var pin_url = await prepare_pin_url(ADD_LINK_URL, url, title, info.selectionText);
             open_pinboard_form(pin_url);
             break;
 
         case 'read_later':
-            var pin_url = prepare_pin_url(READ_LATER_URL, url, title);
+            var pin_url = await prepare_pin_url(READ_LATER_URL, url, title);
             add_read_later(pin_url);
             break;
 
