@@ -2,8 +2,6 @@ const ADD_LINK_URL = 'https://pinboard.in/add?showtags={show_tags}&url={url}&tit
 const READ_LATER_URL = 'https://pinboard.in/add?later=yes&noui=yes&jump=close&url={url}&title={title}';
 const SAVE_TABS_URL = 'https://pinboard.in/tabs/save/';
 const SHOW_TABS_URL = 'https://pinboard.in/tabs/show/';
-const ALL_TABS_URL = "https://pinboard.in/tabs/";
-const UNREAD_BOOKMARKS_URL = "https://pinboard.in/toread/";
 
 let pin_window_id;
 let toolbar_button_state;
@@ -226,18 +224,6 @@ function message_handler(message) {
         case 'link_saved':
             browser.windows.remove(pin_window_id).then(function () { pin_window_id = undefined });
             show_notification('Link added to Pinboard');
-            break;
-
-        case 'view_all_unread':
-            browser.tabs.create({
-                url: UNREAD_BOOKMARKS_URL
-            });
-            break;
-
-        case 'view_all_tabsets':
-            browser.tabs.create({
-                url: ALL_TABS_URL
-            });
             break;
 
     }

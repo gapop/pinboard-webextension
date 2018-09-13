@@ -3,8 +3,11 @@
 <head>
 <meta charset="utf-8">
 <style type="text/css">
-    .panel-section-header a {
+    a {
         text-decoration: none;
+        color: inherit;
+    }
+    .panel-section-header a {
         color: blue;
     }
 </style>
@@ -17,12 +20,12 @@
             <div class="text-section-header"><a href="https://pinboard.in/">Pinboard</a></div>
         </div>
         <div class="panel-section panel-section-list">
-            <div id="menu-save" class="panel-list-item text">Save to Pinboard</div>
-            <div id="menu-later" class="panel-list-item text">Read later</div>
-            <div id="menu-tabset" class="panel-list-item text">Save tab set</div>
+            <div id="save_dialog" class="message-on-click panel-list-item text">Save to Pinboard</div>
+            <div id="read_later" class="message-on-click panel-list-item text">Read later</div>
+            <div id="save_tab_set" class="message-on-click panel-list-item text">Save tab set</div>
             <div class="panel-section-separator"></div>
-            <div id="menu-all-unread" class="panel-list-item text">Unread bookmarks</div>
-            <div id="menu-all-tabsets" class="panel-list-item text">Tab sets</div>
+            <div class="panel-list-item text"><a href="https://pinboard.in/toread/">Unread bookmarks</a></div>
+            <div class="panel-list-item text"><a href="https://pinboard.in/tabs/">Tab sets</a></div>
             <div class="panel-section-separator"></div>
             <div id="menu-preferences" class="panel-list-item text">Preferences</div>
         </div>
