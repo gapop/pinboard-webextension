@@ -16,10 +16,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let links = document.getElementsByTagName('a');
     for (let i = 0; i < links.length; i++) {
-        links[i].addEventListener('click', event => {
+        links[i].addEventListener('click', async event => {
             event.preventDefault();
             event.target.blur();
-            browser.tabs.create({url: event.target.href});
+            await browser.tabs.create({url: event.target.href});
             window.close();
         });
     }
