@@ -12,9 +12,9 @@
         }
     },
     "icons": {
-        "48": "pinboard_icon_48.png",
-        "96": "pinboard_icon_96.png",
-        "200": "pinboard_icon.png"
+        "48": "icons/pinboard_icon_48.png",
+        "96": "icons/pinboard_icon_96.png",
+        "200": "icons/pinboard_icon.png"
     },
     "permissions": [
         "*://pinboard.in/*",
@@ -26,30 +26,30 @@
     ],
     "browser_action": {
         "default_icon": {
-            "16": "toolbar_icon_16.png",
-            "32": "toolbar_icon_32.png",
-            "48": "toolbar_icon_48.png",
-            "96": "toolbar_icon_96.png"
+            "16": "icons/toolbar_icon_16.png",
+            "32": "icons/toolbar_icon_32.png",
+            "48": "icons/toolbar_icon_48.png",
+            "96": "icons/toolbar_icon_96.png"
         },
         "theme_icons": [
             {
-                "dark": "toolbar_icon_16.png",
-                "light": "toolbar_icon_16_light.png",
+                "dark": "icons/toolbar_icon_16.png",
+                "light": "icons/toolbar_icon_16_light.png",
                 "size": 16
             },
             {
-                "dark": "toolbar_icon_32.png",
-                "light": "toolbar_icon_32_light.png",
+                "dark": "icons/toolbar_icon_32.png",
+                "light": "icons/toolbar_icon_32_light.png",
                 "size": 32
             },
             {
-                "dark": "toolbar_icon_48.png",
-                "light": "toolbar_icon_48_light.png",
+                "dark": "icons/toolbar_icon_48.png",
+                "light": "icons/toolbar_icon_48_light.png",
                 "size": 48
             },
             {
-                "dark": "toolbar_icon_96.png",
-                "light": "toolbar_icon_96_light.png",
+                "dark": "icons/toolbar_icon_96.png",
+                "light": "icons/toolbar_icon_96_light.png",
                 "size": 96
             }
         ],

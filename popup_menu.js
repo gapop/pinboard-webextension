@@ -19,7 +19,9 @@ document.addEventListener('DOMContentLoaded', () => {
         links[i].addEventListener('click', async event => {
             event.preventDefault();
             event.target.blur();
-            await browser.tabs.create({url: event.target.href});
+        })
+        links[i].parentElement.addEventListener('click', async () => {
+            await browser.tabs.create({url: links[i].href});
             window.close();
         });
     }
