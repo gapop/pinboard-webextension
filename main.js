@@ -75,13 +75,12 @@ const App = {
         const tabs = await browser.tabs.query({currentWindow: true, active: true});
         const info = {
             url: await this.strip_reader_mode_url(tabs[0].url),
-            title: tabs[0].title,
-            description: ''
+            title: tabs[0].title
         }
         try {
             info.description = await browser.tabs.executeScript({code: 'getSelection().toString();'});
         } catch (error) {
-            // If we can't get any selected text from the page, just move on.
+            info.description = '';
         }
         return info;
     },
@@ -106,7 +105,7 @@ const App = {
         return {
             url: await this.strip_reader_mode_url(url),
             title: title,
-            description: info.selectionText
+            description: info.selectionText || ''
         };
     },
 
