@@ -317,7 +317,7 @@ const App = {
 
 
 // Attach message event handler
-browser.runtime.onMessage.addListener((message) => {App.handle_message(message)});
+browser.runtime.onMessage.addListener(message => {App.handle_message(message)});
 
 // Toolbar button event handler
 browser.browserAction.onClicked.addListener(() => {
@@ -331,7 +331,7 @@ browser.contextMenus.onClicked.addListener((info, tab) => {App.handle_context_me
 browser.storage.onChanged.addListener((changes, area) => {App.handle_preferences_changes(changes, area)});
 
 // Version update listener
-browser.runtime.onInstalled.addListener((details) => {App.handle_upgrade(details)});
+browser.runtime.onInstalled.addListener(details => {App.handle_upgrade(details)});
 
 // Apply preferences when loading extension
 App.update_toolbar_button();
