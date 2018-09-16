@@ -20,16 +20,15 @@ async function bind_preference(option) {
     bind_fn.set(input, await Preferences.get(option));
 
     // Create an event listener for saving the preference value
-    // and send a signal when form input value changes
-    input.addEventListener('change', async (event) => {
-        await Preferences.set(option, bind_fn.get(event.target));
+    input.addEventListener('change', async event => {
+        Preferences.set(option, bind_fn.get(event.target));
     });
 }
 
 async function init() {
-    let main = await browser.runtime.getBackgroundPage();
+    const main = await browser.runtime.getBackgroundPage();
     Preferences = main.Preferences;
-    for (option in Preferences.defaults) {
+    for (let option in Preferences.defaults) {
         bind_preference(option);
     }
 }
