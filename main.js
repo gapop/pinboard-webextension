@@ -309,7 +309,9 @@ const App = {
     async handle_upgrade(details) {
         // Migrate user preferences from sync to local storage
         if (details.reason === 'update' && parseFloat(details.previousVersion) < 1.4) {
-            Preferences.migrate_to_local_storage();
+            await Preferences.migrate_to_local_storage();
+            await this.update_toolbar_button();
+            await this.update_context_menu();
         }
     }
             
