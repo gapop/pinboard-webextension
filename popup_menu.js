@@ -9,19 +9,19 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    document.getElementById('menu-preferences').addEventListener('click', async () => {
-        await browser.runtime.openOptionsPage();
+    document.getElementById('menu-preferences').addEventListener('click', () => {
+        browser.runtime.openOptionsPage();
         window.close();
     });
 
     let links = document.getElementsByTagName('a');
     for (let i = 0; i < links.length; i++) {
-        links[i].addEventListener('click', async event => {
+        links[i].addEventListener('click', event => {
             event.preventDefault();
             event.target.blur();
         })
-        links[i].parentElement.addEventListener('click', async () => {
-            await browser.tabs.create({url: links[i].href});
+        links[i].parentElement.addEventListener('click', () => {
+            browser.tabs.create({url: links[i].href});
             window.close();
         });
     }
