@@ -41,7 +41,7 @@ var Preferences = {
     async set(option, value) {
         let option_value = {};
         option_value[option] = value;
-        await browser.storage[this.storage_area].set(option_value);
+        browser.storage[this.storage_area].set(option_value);
     },
 
     async migrate_to_local_storage() {
@@ -49,9 +49,9 @@ var Preferences = {
         for (option in this.defaults) {
             this.storage_area = 'sync';
             value = await this.get(option);
-            await browser.storage.sync.remove(option);
+            browser.storage.sync.remove(option);
             this.storage_area = 'local';
-            await this.set(option, value);
+            this.set(option, value);
         }
     }
 
@@ -265,7 +265,7 @@ const App = {
                 break;
     
             case 'link_saved':
-                await browser.windows.remove(this.pin_window_id);
+                browser.windows.remove(this.pin_window_id);
                 this.pin_window_id = undefined;
                 this.show_notification('Link added to Pinboard');
                 break;
