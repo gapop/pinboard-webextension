@@ -118,7 +118,7 @@ const App = {
             url: url,
             type: 'popup',
             width: 750,
-            height: show_tags ? 550 : 305,
+            height: show_tags ? 550 : 350,
             incognito: bg_window.incognito
         });
         this.pin_window_id = pin_window.id;
