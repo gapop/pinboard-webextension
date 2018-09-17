@@ -1,37 +1,36 @@
-let Preferences;
+const Preferences = {
 
-// Form getter & setter functions by element type
-const bind_functions = {
-    SELECT: {
-        get: (input) => input.value,
-        set: (input, value) => {input.value = value}
+    storage_area: 'local',
+
+    defaults: {
+        toolbar_button: 'show_menu',
+        show_notifications: true,
+        context_menu_items: true,
+        show_tags: true
     },
-    INPUT: {
-        get: (input) => !!input.checked,
-        set: (input, value) => {input.checked = !!value}
+
+    async get(option) {
+        let option_value = {};
+        option_value[option] = this.defaults[option];
+        const value = await browser.storage[this.storage_area].get(option_value);
+        return value[option];
+    },
+
+    async set(option, value) {
+        let option_value = {};
+        option_value[option] = value;
+        browser.storage[this.storage_area].set(option_value);
+    },
+
+    async migrate_to_local_storage() {
+        let value;
+        for (option in this.defaults) {
+            this.storage_area = 'sync';
+            value = await this.get(option);
+            browser.storage.sync.remove(option);
+            this.storage_area = 'local';
+            this.set(option, value);
+        }
     }
-}
 
-async function bind_preference(option) {
-    const input = document.getElementById(option);
-    const bind_fn = bind_functions[input.tagName];
-
-    // Set the form input value to current value for the preference
-    bind_fn.set(input, await Preferences.get(option));
-
-    // Create an event listener for saving the preference value
-    input.addEventListener('change', async event => {
-        Preferences.set(option, bind_fn.get(event.target));
-    });
-}
-
-async function init() {
-    const main = await browser.runtime.getBackgroundPage();
-    Preferences = main.Preferences;
-    for (let option in Preferences.defaults) {
-        bind_preference(option);
-    }
-}
-
-// Bind all preferences
-document.addEventListener('DOMContentLoaded', init);
+};

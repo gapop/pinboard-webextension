@@ -2,7 +2,7 @@
     "manifest_version": 2,
     "name": "Pinboard WebExtension",
     "short_name": "Pinboard",
-    "version": "1.40",
+    "version": "1.41",
     "description": "Easily add links to Pinboard. A remake of the official Pinboard extension.",
     "author": "George Pop",
     "homepage_url": "https://github.com/gapop/pinboard-webextension",
@@ -58,7 +58,7 @@
         "browser_style": true
     },
     "background": {
-        "scripts": ["main.js"]
+        "scripts": ["preferences.js", "main.js"]
     },
     "content_scripts": [
         {
@@ -70,7 +70,7 @@
         }
     ],
     "options_ui": {
-        "page": "preferences.html",
+        "page": "preferences_page.html",
         "browser_style": true
     }
 }
