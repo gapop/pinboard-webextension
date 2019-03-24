@@ -8,7 +8,8 @@
     "homepage_url": "https://github.com/gapop/pinboard-webextension",
     "applications": {
         "gecko": {
-            "id": "pinboard-webextension@helloworld.ro"
+            "id": "pinboard-webextension@helloworld.ro",
+            "strict_min_version": "57.0"
         }
     },
     "icons": {
