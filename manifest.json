@@ -9,7 +9,7 @@
     "applications": {
         "gecko": {
             "id": "pinboard-webextension@helloworld.ro",
-            "strict_min_version": "57.0"
+            "strict_min_version": "60.0"
         }
     },
     "icons": {
