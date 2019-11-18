@@ -2,7 +2,7 @@
     "manifest_version": 2,
     "name": "Pinboard WebExtension",
     "short_name": "Pinboard",
-    "version": "1.41",
+    "version": "1.50",
     "description": "Easily add links to Pinboard. A remake of the official Pinboard extension.",
     "author": "George Pop",
     "homepage_url": "https://github.com/gapop/pinboard-webextension",
@@ -70,6 +70,17 @@
             "js": ["link_saved.js"]
         }
     ],
+    "commands": {
+        "save_dialog": {
+            "description": "Save to Pinboard (opens dialog)"
+        },
+        "read_later": {
+            "description": "Save to Read later"
+        },
+        "save_tab_set": {
+            "description": "Save tab set"
+        }
+    },
     "options_ui": {
         "page": "preferences_page.html",
         "browser_style": true

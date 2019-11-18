@@ -31,6 +31,15 @@ const Preferences = {
             this.storage_area = 'local';
             this.set(option, value);
         }
+    },
+
+    async get_keyboard_shortcuts() {
+        const shortcuts = await browser.commands.getAll();
+        return shortcuts.filter(shortcut => shortcut.shortcut);
+    },
+
+    async remove_keyboard_shortcut(name) {
+        browser.commands.reset(name);
     }
 
 };

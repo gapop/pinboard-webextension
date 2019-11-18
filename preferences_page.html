@@ -9,8 +9,8 @@
         <label for="toolbar_button">Toolbar button...</label>
         <select id="toolbar_button" class="browser-style">
             <option value="show_menu">shows menu</option>
-            <option value="save_dialog">shows “Add link” dialog</option>
-            <option value="read_later">directly saves link as “Read later”</option>
+            <option value="save_dialog">shows <i>Add link</i> dialog</option>
+            <option value="read_later">directly saves link as <i>Read later</i></option>
         </select>
     </div>
 
@@ -27,6 +27,16 @@
     <div class="panel-formElements-item browser-style">
         <input id="show_tags" type="checkbox">
         <label for="show_tags">Show all tags when saving links</label>
+    </div>
+
+    <div class="panel-formElements-item">
+        <fieldset>
+            <legend>Keyboard shortcuts</legend>
+            <p>To set up shortcuts, go to <i>Manage Extension Shortcuts</i> in the cogwheel menu at the top.</p>
+            <ul id="kb-shortcuts">
+                <li id="kb-shortcut-tpl" style="display: none">{description}: <b>{shortcut}</b> [<a href="#">remove</a>]</li>
+            </ul>
+        </fieldset>
     </div>
 
     <script src="preferences.js"></script>

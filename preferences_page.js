@@ -27,6 +27,26 @@ async function init() {
     for (let option in Preferences.defaults) {
         bind_preference(option);
     }
+
+    // Add remove links for keyboard shortcuts
+    const shortcuts = await Preferences.get_keyboard_shortcuts();
+    const container = document.getElementById('kb-shortcuts');
+    const tpl = document.getElementById('kb-shortcut-tpl');
+    shortcuts.forEach(shortcut => {
+        let new_shortcut = tpl.cloneNode(true);
+        new_shortcut.id = null;
+        new_shortcut.innerHTML = new_shortcut.innerHTML
+            .replace('{description}', shortcut.description)
+            .replace('{shortcut}', shortcut.shortcut);
+        let link = new_shortcut.getElementsByTagName('a')[0];
+        link.addEventListener('click', async event => {
+            event.preventDefault();
+            Preferences.remove_keyboard_shortcut(shortcut.name);
+            link.parentNode.remove();
+        });
+        new_shortcut.style.display = 'block';
+        container.appendChild(new_shortcut);
+    });
 }
 
 // Bind all preferences

@@ -209,7 +209,7 @@ const App = {
     
     async handle_message(message) {
         let bookmark_info;
-        switch (message.event) {
+        switch (message) {
     
             case 'save_dialog':
                 bookmark_info = await this.get_bookmark_info_from_current_tab();
@@ -281,12 +281,15 @@ const App = {
 
 
 // Attach message event handler
-browser.runtime.onMessage.addListener(message => {App.handle_message(message)});
+browser.runtime.onMessage.addListener(message => {App.handle_message(message.event)});
 
 // Toolbar button event handler
 browser.browserAction.onClicked.addListener(() => {
-    App.handle_message({event: App.toolbar_button_state});
+    App.handle_message(App.toolbar_button_state);
 });
+
+// Keyboard shortcut event handler
+browser.commands.onCommand.addListener(command => {App.handle_message(command)});
 
 // Context menu event handler
 browser.contextMenus.onClicked.addListener((info, tab) => {App.handle_context_menu(info, tab)});
