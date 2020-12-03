@@ -32,12 +32,12 @@ async function init() {
     const shortcuts = await Preferences.get_keyboard_shortcuts();
     const container = document.getElementById('kb-shortcuts');
     const tpl = document.getElementById('kb-shortcut-tpl');
+    const parser = new DOMParser();
     shortcuts.forEach(shortcut => {
         let new_shortcut = tpl.cloneNode(true);
         new_shortcut.id = null;
-        new_shortcut.innerHTML = new_shortcut.innerHTML
-            .replace('{description}', shortcut.description)
-            .replace('{shortcut}', shortcut.shortcut);
+        new_shortcut.childNodes[0].textContent = shortcut.description + ': ';
+        new_shortcut.childNodes[1].textContent = shortcut.shortcut;
         let link = new_shortcut.getElementsByTagName('a')[0];
         link.addEventListener('click', async event => {
             event.preventDefault();
