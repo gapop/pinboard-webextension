@@ -32,7 +32,6 @@ async function init() {
     const shortcuts = await Preferences.get_keyboard_shortcuts();
     const container = document.getElementById('kb-shortcuts');
     const tpl = document.getElementById('kb-shortcut-tpl');
-    const parser = new DOMParser();
     shortcuts.forEach(shortcut => {
         let new_shortcut = tpl.cloneNode(true);
         new_shortcut.id = null;
