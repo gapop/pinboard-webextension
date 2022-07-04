@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     for (let i = 0; i < menu_elements.length; i++) {
         let element = menu_elements[i]
         element.addEventListener('click', () => {
-            browser.runtime.sendMessage({event: element.id})
+            await browser.runtime.sendMessage({event: element.id})
             window.close()
         })
     }
