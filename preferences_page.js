@@ -33,11 +33,11 @@ async function init() {
     const container = document.getElementById('kb-shortcuts')
     const tpl = document.getElementById('kb-shortcut-tpl')
     shortcuts.forEach(shortcut => {
-        let new_shortcut = tpl.cloneNode(true)
+        const new_shortcut = tpl.cloneNode(true)
         new_shortcut.id = null
         new_shortcut.childNodes[0].textContent = shortcut.description + ': '
         new_shortcut.childNodes[1].textContent = shortcut.shortcut
-        let link = new_shortcut.getElementsByTagName('a')[0]
+        const link = new_shortcut.getElementsByTagName('a')[0]
         link.addEventListener('click', async event => {
             event.preventDefault()
             Preferences.remove_keyboard_shortcut(shortcut.name)
@@ -46,6 +46,15 @@ async function init() {
         new_shortcut.style.display = 'block'
         container.appendChild(new_shortcut)
     })
+
+    // Match preferences form to theme colors
+    const theme = await browser.theme.getCurrent()
+    if (theme && theme.colors) {
+        document.body.style.backgroundColor = theme.colors.ntp_background
+        document.body.style.color = theme.colors.ntp_text
+        const stylesheet = document.styleSheets[0]
+        stylesheet.insertRule(`a { color: ${theme.colors.ntp_text} }`)
+    }    
 }
 
 // Bind all preferences

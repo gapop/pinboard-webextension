@@ -7,16 +7,18 @@ const Pinboard = {
         login: 'https://pinboard.in/popup_login/'
     },
     
-    async get_endpoint(url_template, bookmark_info) {
+    async get_endpoint(url_handle, bookmark_info) {
+        const url_template = this.url[url_handle]
         const show_tags = await Preferences.get('show_tags') ? 'yes' : 'no'
         let endpoint = url_template.replace('{show_tags}', show_tags)
-        endpoint = endpoint.replace('{url}', encodeURIComponent(bookmark_info.url))
-        endpoint = endpoint.replace('{title}', encodeURIComponent(bookmark_info.title))
-        endpoint = endpoint.replace('{description}', encodeURIComponent(bookmark_info.description))
+        if (bookmark_info) {
+            endpoint = endpoint.replace('{url}', encodeURIComponent(bookmark_info.url || ''))
+                .replace('{title}', encodeURIComponent(bookmark_info.title || ''))
+                .replace('{description}', encodeURIComponent(bookmark_info.description || ''))
+        }
         return endpoint
     }
 }
-
 
 const App = {
     toolbar_button_state: Preferences.defaults.toolbar_button,
@@ -84,13 +86,13 @@ const App = {
 
     // Opens the Pinboard "Add Link" form
     async open_save_form(bookmark_info) {
-        const endpoint = await Pinboard.get_endpoint(Pinboard.url.add_link, bookmark_info)
+        const endpoint = await Pinboard.get_endpoint('add_link', bookmark_info)
         this.open_window(endpoint)
     },
     
     // Saves the bookmark to read later
     async save_for_later(bookmark_info) {
-        const endpoint = await Pinboard.get_endpoint(Pinboard.url.read_later, bookmark_info)
+        const endpoint = await Pinboard.get_endpoint('read_later', bookmark_info)
         const bg_window = await browser.windows.getCurrent()
         if (bg_window.incognito) {
     
@@ -102,7 +104,7 @@ const App = {
         } else {
     
             const http_response = await fetch(endpoint, {credentials: 'include'})
-            if (http_response.redirected && http_response.url.startsWith(Pinboard.url.login)) {
+            if (http_response.redirected && http_response.url.startsWith(await Pinboard.get_endpoint('login'))) {
                 this.open_window(http_response.url)
             } else if (http_response.status !== 200 || http_response.ok !== true) {
                 this.show_notification('FAILED TO ADD LINK. ARE YOU LOGGED-IN?', true)
@@ -114,7 +116,7 @@ const App = {
     },
     
     async save_tab_set() {
-        const bg_window = await browser.windows.getCurrent()
+        const bg_window = browser.windows.getCurrent()
         if (bg_window.incognito) {
             this.show_notification("Due to a Firefox limitation, saving tab sets does not work in Private mode. Try normal mode!", true)
             return
@@ -123,7 +125,7 @@ const App = {
         const window_info = await browser.windows.getAll({populate: true, windowTypes: ['normal']})
         let windows = []
         for (let i = 0; i < window_info.length; i++) {
-            let current_window_tabs = window_info[i].tabs
+            const current_window_tabs = window_info[i].tabs
             let tabs = []
             for (let j = 0; j < current_window_tabs.length; j++) {
                 tabs.push({
@@ -136,16 +138,16 @@ const App = {
     
         let payload = new FormData()
         payload.append('data', JSON.stringify({browser: 'ffox', windows: windows}))
-        const http_response = await fetch(Pinboard.url.save_tabs, {method: 'POST', body: payload, credentials: 'include'})
+        const http_response = await fetch(await Pinboard.get_endpoint('save_tabs'), {method: 'POST', body: payload, credentials: 'include'})
         if (http_response.status !== 200 || http_response.ok !== true) {
             this.show_notification('FAILED TO SAVE TAB SET.', true)
         } else {
-            browser.tabs.create({url: Pinboard.url.show_tabs})
+            browser.tabs.create({url: await Pinboard.get_endpoint('show_tabs')})
         }
     },
 
     async show_notification(message, force) {
-        let show_notifications = await Preferences.get('show_notifications')
+        const show_notifications = await Preferences.get('show_notifications')
         if (force || show_notifications) {
             browser.notifications.create({
                 'type': 'basic',
@@ -207,7 +209,6 @@ const App = {
     async handle_message(message) {
         let bookmark_info
         switch (message) {
-    
             case 'save_dialog':
                 bookmark_info = await this.get_bookmark_info_from_current_tab()
                 this.open_save_form(bookmark_info)
@@ -227,7 +228,6 @@ const App = {
                 this.pin_window_id = undefined
                 this.show_notification('Link added to Pinboard')
                 break
-    
         }
     },
 
@@ -275,9 +275,13 @@ const App = {
     }
 }
 
-
 // Attach message event handler
-browser.runtime.onMessage.addListener(message => {App.handle_message(message.event)})
+browser.runtime.onMessage.addListener(async (message) => {
+    if (message === 'save_tab_set') {
+        await browser.permissions.request({permissions: ['tabs']})
+    }
+    App.handle_message(message.event)
+})
 
 // Toolbar button event handler
 browser.browserAction.onClicked.addListener(() => {
@@ -288,7 +292,12 @@ browser.browserAction.onClicked.addListener(() => {
 browser.commands.onCommand.addListener(command => {App.handle_message(command)})
 
 // Context menu event handler
-browser.contextMenus.onClicked.addListener((info, tab) => {App.handle_context_menu(info, tab)})
+browser.contextMenus.onClicked.addListener(async (info, tab) => {
+    if (info.menuItemId === 'save_tab_set') {
+        await browser.permissions.request({permissions: ['tabs']})
+    }
+    App.handle_context_menu(info, tab)
+})
 
 // Preferences event handler
 browser.storage.onChanged.addListener((changes, area) => {App.handle_preferences_changes(changes, area)})
