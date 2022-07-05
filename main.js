@@ -22,7 +22,6 @@ const Pinboard = {
 
 const App = {
     toolbar_button_state: Preferences.defaults.toolbar_button,
-    pin_window_id: null,
 
     // Returns the original URL for a page opened in Firefox's reader mode
     async strip_reader_mode_url(url) {
@@ -71,7 +70,7 @@ const App = {
     },
 
     // Opens a window for interacting with Pinboard
-    async open_window(url) {
+    async open_add_link_window(url) {
         const show_tags = await Preferences.get('show_tags')
         const bg_window = await browser.windows.getCurrent()
         const pin_window = await browser.windows.create({
@@ -81,13 +80,39 @@ const App = {
             height: show_tags ? 550 : 350,
             incognito: bg_window.incognito
         })
-        this.pin_window_id = pin_window.id
+        return pin_window
+    },
+
+    // Open the Add Link form in a new tab
+    async open_add_link_tab(url) {
+        const active_tabs = await browser.tabs.query({currentWindow: true, active: true})
+        const opener_tab = active_tabs[0]
+        const form_tab = await browser.tabs.create({
+            url: url,
+            openerTabId: opener_tab.id
+        })
+        return form_tab
     },
 
     // Opens the Pinboard "Add Link" form
     async open_save_form(bookmark_info) {
         const endpoint = await Pinboard.get_endpoint('add_link', bookmark_info)
-        this.open_window(endpoint)
+        const add_link_form_in_tab = await Preferences.get('add_link_form_in_tab')
+        if (add_link_form_in_tab) {
+            const tab = await this.open_add_link_tab(endpoint)
+            this.close_save_form = async () => {
+                await browser.tabs.remove(tab.id)
+            }
+        } else {
+            const win = await this.open_add_link_window(endpoint)
+            this.close_save_form = async () => {
+                await browser.windows.remove(win.id)
+            }
+        }
+    },
+
+    async close_save_form() {
+        throw 'No close function defined.'
     },
     
     // Saves the bookmark to read later
@@ -224,8 +249,7 @@ const App = {
                 break
     
             case 'link_saved':
-                browser.windows.remove(this.pin_window_id)
-                this.pin_window_id = undefined
+                this.close_save_form()
                 this.show_notification('Link added to Pinboard')
                 break
         }

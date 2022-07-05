@@ -6,7 +6,8 @@ const Preferences = {
         toolbar_button: 'show_menu',
         show_notifications: true,
         context_menu_items: true,
-        show_tags: true
+        show_tags: true,
+        add_link_form_in_tab: false
     },
 
     async get(option) {
