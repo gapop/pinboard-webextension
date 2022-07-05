@@ -300,10 +300,7 @@ const App = {
 }
 
 // Attach message event handler
-browser.runtime.onMessage.addListener(async (message) => {
-    if (message === 'save_tab_set') {
-        await browser.permissions.request({permissions: ['tabs']})
-    }
+browser.runtime.onMessage.addListener(message => {
     App.handle_message(message.event)
 })
 
@@ -317,9 +314,6 @@ browser.commands.onCommand.addListener(command => {App.handle_message(command)})
 
 // Context menu event handler
 browser.contextMenus.onClicked.addListener(async (info, tab) => {
-    if (info.menuItemId === 'save_tab_set') {
-        await browser.permissions.request({permissions: ['tabs']})
-    }
     App.handle_context_menu(info, tab)
 })
 

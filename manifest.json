@@ -22,9 +22,7 @@
         "storage",
         "contextMenus",
         "activeTab",
-        "notifications"
-    ],
-    "optional_permissions": [
+        "notifications",
         "tabs"
     ],
     "browser_action": {
