@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const menu_elements = document.getElementsByClassName('message-on-click')
     for (let i = 0; i < menu_elements.length; i++) {
         let element = menu_elements[i]
-        element.addEventListener('click', () => {
+        element.addEventListener('click', async () => {
             await browser.runtime.sendMessage({event: element.id})
             window.close()
         })
