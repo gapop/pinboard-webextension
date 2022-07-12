@@ -124,13 +124,13 @@ const App = {
             // In private mode we actually have to open a window,
             // because Firefox doesn't support split incognito mode
             // and gets confused about cookie jars.
-            this.open_window(endpoint)
+            this.open_save_form(endpoint)
     
         } else {
     
             const http_response = await fetch(endpoint, {credentials: 'include'})
             if (http_response.redirected && http_response.url.startsWith(await Pinboard.get_endpoint('login'))) {
-                this.open_window(http_response.url)
+                this.open_save_form(http_response.url)
             } else if (http_response.status !== 200 || http_response.ok !== true) {
                 this.show_notification('FAILED TO ADD LINK. ARE YOU LOGGED-IN?', true)
             } else {
